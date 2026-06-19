@@ -1,0 +1,47 @@
+{
+  "owner": {
+    "name": "Mahir Sabotic",
+    "role": "Web Designer & Developer",
+    "location": "Skopje, Macedonia",
+    "email": "mahirsabotic@gmail.com",
+    "status": "Open for new projects"
+  },
+  "summary": [
+    "Mahir builds clean, responsive web experiences with attention to layout, contrast, motion and user flow.",
+    "The portfolio presents an award-style one-page experience with GSAP scroll storytelling, WebGL depth and cinematic interactions.",
+    "Mahir studies motion design, typography and interaction details that make a page feel alive instead of static."
+  ],
+  "skills": [
+    "Web Design",
+    "Front-End Development",
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "GSAP",
+    "WebGL",
+    "Responsive UI",
+    "UI Motion",
+    "Landing pages",
+    "Portfolio presentation"
+  ],
+  "projects": [
+    {
+      "name": "Workspace Platform",
+      "type": "Website / Development",
+      "description": "A workspace website project preview focused on clean presentation and front-end execution."
+    },
+    {
+      "name": "Reservation Flow",
+      "type": "UI Design / Booking",
+      "description": "A reservation interface concept focused on booking flow, clarity and polished UI."
+    },
+    {
+      "name": "Interactive Portfolio",
+      "type": "Motion / Front-End",
+      "description": "A motion-driven portfolio experience using scroll reveals, parallax depth, hover states and cinematic transitions."
+    }
+  ],
+  "extraKnowledge": [
+    "Add new facts here later. Keep each fact short and specific so the chatbot can use it accurately."
+  ]
+}
