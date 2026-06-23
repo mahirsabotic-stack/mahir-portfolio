@@ -103,15 +103,27 @@
 
   function refreshScrollLayout({ restore = false } = {}) {
     if (!motionOK) return;
-    ScrollTrigger.refresh(true);
 
-    if (!restore || !pendingScrollRestore) return;
+    if (restore && pendingScrollRestore) {
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true, force: true });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
 
-    requestAnimationFrame(() => {
+    // FIX: Add a tiny timeout so the browser has time to register the unlocked body 
+    // and visible scrollbar before ScrollTrigger does its math.
+    setTimeout(() => {
+      lenis?.resize?.();
+      ScrollTrigger.refresh();
+
+      if (!restore || !pendingScrollRestore) return;
+
       jumpToScroll(restoredScrollY);
       ScrollTrigger.update();
       pendingScrollRestore = false;
-    });
+    }, 50);
   }
 
   /* -------------------------------------------------------- navigation */
@@ -333,21 +345,29 @@
   }
 
   /* --------------------------------------------- work: horizontal rail */
+  const workPin = document.querySelector('.work-pin');
   const railTrack = document.querySelector('[data-rail-track]');
   const railBar = document.querySelector('[data-rail-progress]');
 
-  if (motionOK && railTrack) {
+  if (motionOK && workPin && railTrack) {
     const mm = gsap.matchMedia();
 
     mm.add('(min-width: 900px)', () => {
       body.classList.add('has-rail');
-      const distance = () => Math.max(0, railTrack.scrollWidth - docEl.clientWidth);
+      gsap.set(railTrack, { x: 0 });
+      if (railBar) railBar.style.transform = 'scaleX(0)';
+
+      const viewportWidth = () => docEl.clientWidth || window.innerWidth;
+      const distance = () => Math.max(0, Math.ceil(railTrack.scrollWidth - viewportWidth()));
+      const setRailProgress = (progress) => {
+        if (railBar) railBar.style.transform = `scaleX(${progress.toFixed(4)})`;
+      };
 
       const rail = gsap.to(railTrack, {
         x: () => -distance(),
         ease: 'none',
         scrollTrigger: {
-          trigger: '.work-pin',
+          trigger: workPin,
           start: 'top top',
           end: () => `+=${distance()}`,
           scrub: 1,
@@ -356,8 +376,14 @@
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: 1,
+          onRefreshInit() {
+            gsap.set(railTrack, { x: 0 });
+          },
+          onRefresh(self) {
+            setRailProgress(self.progress);
+          },
           onUpdate(self) {
-            if (railBar) railBar.style.transform = `scaleX(${self.progress.toFixed(4)})`;
+            setRailProgress(self.progress);
           },
         },
       });
@@ -414,7 +440,13 @@
           });
       });
 
-      return () => body.classList.remove('has-rail');
+      requestAnimationFrame(() => refreshScrollLayout());
+
+      return () => {
+        body.classList.remove('has-rail');
+        gsap.set(railTrack, { clearProps: 'transform' });
+        if (railBar) railBar.style.transform = 'scaleX(0)';
+      };
     });
 
     mm.add('(max-width: 899px)', () => {
@@ -765,10 +797,17 @@
   initThree();
 
   /* ------------------------------------------------------ final refresh */
+  /* ------------------------------------------------------ final refresh */
   if (motionOK) {
-    Promise.all([windowLoaded, fontsReady, imagesReady]).then(() => refreshScrollLayout({ restore: true }));
+    Promise.all([windowLoaded, fontsReady, imagesReady]).then(() => {
+      // FIX: Only restore scroll if the loader has finished unlocking the body.
+      // If the loader is still active, just wait—the loader's onComplete will handle the restore.
+      const isLoaderActive = document.body.classList.contains('is-locked');
+      refreshScrollLayout({ restore: !isLoaderActive });
+    });
+    
     window.addEventListener('pageshow', () => {
-      requestAnimationFrame(() => refreshScrollLayout({ restore: true }));
+      requestAnimationFrame(() => refreshScrollLayout({ restore: false }));
     });
   }
 })();

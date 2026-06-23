@@ -1137,7 +1137,7 @@ body.gsap-marquee .marquee-track {
 /* Horizontal rail mode — enabled by JS on desktop */
 body.has-rail .work-pin {
   height: 100svh;
-  justify-content: center;
+  justify-content: flex-start;
   gap: clamp(20px, 4vh, 40px);
   padding: 0;
   overflow: hidden;
